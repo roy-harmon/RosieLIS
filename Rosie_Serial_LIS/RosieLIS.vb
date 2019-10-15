@@ -103,18 +103,20 @@ Public Class RosieLIS
           Do
                If ComPort.BytesToRead > 0 Then
                     intCom = ComPort.ReadByte()
+                    If intCom > 0 Then
+                         Incoming = Chr(intCom)
+                         'Else
+                         '     Incoming = Chr(3)
+                    End If
+                    If Incoming = Chr(3) Then
+                         Exit Do
+                    Else
+                         If Not Incoming = Chr(6) Then strTrans &= Incoming
+                    End If
                Else
-                    Exit Do
+                    Threading.Thread.Sleep(200)
                End If
-               If intCom > 0 Then
-                    Incoming = Chr(intCom)
-               Else
-                    Incoming = Chr(3)
-               End If
-               If Not Incoming = Chr(3) Then
-                    If Not Incoming = Chr(6) Then strTrans &= Incoming
-               End If
-          Loop Until Incoming = Chr(3)
+          Loop
 
           If strTrans.Substring(0, 1) = Chr(2) Then strTrans = strTrans.Substring(1)
 
