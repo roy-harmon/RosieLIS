@@ -5,7 +5,7 @@ Imports System.IO.Ports
 
 Public Class RosieLIS
 
-     Public WithEvents Com1 As SerialPort
+     Public WithEvents ComPort As SerialPort
      Public intTemp As Integer
 
      Protected Overrides Sub OnStart(ByVal args() As String)
@@ -27,8 +27,8 @@ Public Class RosieLIS
      End Sub
 
      Sub SerialOpen()
-          Com1 = My.Computer.Ports.OpenSerialPort(My.Settings.portName, My.Settings.baudRate, My.Settings.parity, My.Settings.dataBits, My.Settings.stopBits)
-          With Com1
+          ComPort = My.Computer.Ports.OpenSerialPort(My.Settings.portName, My.Settings.baudRate, My.Settings.parity, My.Settings.dataBits, My.Settings.stopBits)
+          With ComPort
                .Handshake = My.Settings.handShake
                .NewLine = Chr(3)
           End With
@@ -54,10 +54,10 @@ Public Class RosieLIS
      Protected Overrides Sub OnStop()
           ' Definitely want to close the COM port when we're done.
           Try
-               If Com1 IsNot Nothing Then
-                    If Com1.IsOpen Then Com1.Close()
-                    Com1.Dispose()
-                    Com1 = Nothing
+               If ComPort IsNot Nothing Then
+                    If ComPort.IsOpen Then ComPort.Close()
+                    ComPort.Dispose()
+                    ComPort = Nothing
                End If
           Catch ex As Exception
                HandleError(ex)
@@ -70,7 +70,7 @@ Public Class RosieLIS
           EventLog.WriteEntry(ex.Source, message, EventLogEntryType.Error)
      End Sub
 
-     Private Sub Com1_DataReceived(ByVal sender As Object, ByVal e As SerialDataReceivedEventArgs) Handles Com1.DataReceived
+     Private Sub Com1_DataReceived(ByVal sender As Object, ByVal e As SerialDataReceivedEventArgs) Handles ComPort.DataReceived
           ReceiveSerialData()
      End Sub
 
@@ -78,10 +78,10 @@ Public Class RosieLIS
           ' Send strings to a serial port.
           ' Properties should already be set.
           Try
-               If Not Com1.IsOpen Then
-                    Com1.Open()
+               If Not ComPort.IsOpen Then
+                    ComPort.Open()
                End If
-               Com1.Write(strData)
+               ComPort.Write(strData)
                AppendToLog("O: " & strData)
           Catch ex As Exception
                HandleError(ex)
@@ -94,12 +94,22 @@ Public Class RosieLIS
           ' Properties should already be set.
           Dim strTrans As String = ""
 
-          If Com1.BytesToRead = 0 Then Exit Sub
+          If ComPort.BytesToRead = 0 Then Exit Sub
 
           Dim Incoming As String
+          Dim intCom As Integer
 
           Do
-               Incoming = Chr(Com1.ReadByte)
+               If ComPort.BytesToRead > 0 Then
+                    intCom = ComPort.ReadByte()
+               Else
+                    Exit Do
+               End If
+               If intCom > 0 Then
+                    Incoming = Chr(intCom)
+               Else
+                    Incoming = Chr(3)
+               End If
                If Not Incoming = Chr(3) Then
                     If Not Incoming = Chr(6) Then strTrans &= Incoming
                End If
@@ -122,7 +132,7 @@ Public Class RosieLIS
                     ' Send NAK to serial port. The remote client will attempt to send again.
                     SendCommData(Chr(21))
                     ' Log it.
-                    AppendToLog("Checksum Mismatch: " & Incoming)
+                    AppendToLog("Checksum Mismatch: " & strTrans)
                End If
           End If
      End Sub
@@ -273,7 +283,7 @@ Public Class RosieLIS
 
           Catch ex As Exception
                HandleError(ex)
-               Com1.Write(Chr(21))
+               ComPort.Write(Chr(21))
           End Try
 
      End Sub
