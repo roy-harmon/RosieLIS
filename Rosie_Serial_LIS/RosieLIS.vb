@@ -7,13 +7,6 @@ Public Class RosieLIS
 
      Public WithEvents Com1 As SerialPort
      Public intTemp As Integer
-     Const PatientName = "PatientName"
-     Const SampleNo = "SampleNo"
-     Const SampleType = "SampleType"
-     Const ToDelete = "ToDelete"
-     Const Temp_ID = "Temp_ID"
-     Const intPriority = "intPriority"
-     Const DilFactor = "DilFactor"
 
      Protected Overrides Sub OnStart(ByVal args() As String)
           Try
@@ -203,26 +196,26 @@ Public Class RosieLIS
                                    ' If there's at least one row, send the first row.
                                    Dim strTests() As String = Nothing
                                    Dim intTests As Integer, strSampleType As String, intDil As Integer = 1
-                                   strSampleType = dr.Item(SampleType)
+                                   strSampleType = dr.Item("SampleType")
                                    intTests = My.Settings.maxTests
                                    ' Determine how many tests are requested for this sample.
                                    For i As Integer = 1 To intTests
-                                        If IsDBNull(dr.Item("Test" & i)) Then intTests -= 1
+                                        If Nz(dr.Item("Test" & i)) = "" Then intTests -= 1
                                    Next
                                    ' Resize the array accordingly.
                                    ReDim strTests(intTests - 1)
                                    Dim iTest As Integer = 0
                                    ' Populate the array.
                                    For i As Integer = 1 To My.Settings.maxTests
-                                        If Not IsDBNull(dr.Item("Test" & i)) Then
+                                        If Nz(dr.Item("Test" & i)) <> "" Then
                                              strTests(iTest) = dr.Item("Test" & i)
                                              iTest += 1
                                         End If
                                    Next
-                                   If Nz(dr.Item(DilFactor), 0) > 1 Then intDil = dr.Item(DilFactor)
-                                   Dim strOut As String = SampleRequestMessage(dr.Item(ToDelete), dr.Item(PatientName), dr.Item(SampleNo), strSampleType, dr.Item(intPriority), strTests, intDil)
+                                   If Nz(dr.Item("DilFactor"), 0) > 1 Then intDil = dr.Item("DilFactor")
+                                   Dim strOut As String = SampleRequestMessage(dr.Item("ToDelete"), dr.Item("PatientName"), dr.Item("SampleNo"), strSampleType, dr.Item("intPriority"), strTests, intDil)
                                    SendCommData(strOut)
-                                   intTemp = dr.Item(Temp_ID)
+                                   intTemp = dr.Item("Temp_ID")
                                    Return 0
                               Else
                                    SendCommData(NoRequestMessage)
@@ -275,7 +268,7 @@ Public Class RosieLIS
 
                End Select
                ' Log it.
-               AppendToLog("I: " & strData)
+               AppendToLog("I:  " & strData)
 
           Catch ex As Exception
                HandleError(ex)
