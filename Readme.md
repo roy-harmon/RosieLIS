@@ -4,7 +4,7 @@ Rosie Serial LIS is a Windows service (written in Visual Basic.NET) that communi
 
 ## Installation
 
-Rosie Serial LIS can be installed using the included setup file. Alternatively, navigate to the Rosie_Serial_LIS.exe file using the command prompt and enter the following commands:
+Rosie Serial LIS can be installed using the **LIS_setup.msi** file. Alternatively, navigate to the Rosie_Serial_LIS.exe file using the command prompt and enter the following commands:
 
 ```bash
 installutil Rosie_Serial_LIS.exe
