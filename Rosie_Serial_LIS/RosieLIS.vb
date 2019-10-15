@@ -295,7 +295,7 @@ Public Class RosieLIS
                                         .AddWithValue("@intTemp", intTemp)
                                    Case "A"
                                         ' Request accepted. Set the "position" and clear the PendingSending flag.
-                                        .CommandText = "UPDATE PendingTests SET PendingTests.Position = @Position, PendingTests.PendingSending = 'FALSE', PendingTests.ToDelete = 'FALSE' WHERE PendingTests.Temp_ID = @intTemp"
+                                        .CommandText = "UPDATE PendingTests SET PendingTests.Position = @Position, PendingTests.PendingSending = 'FALSE', PendingTests.ToDelete = 'FALSE', PendingTests.RejectCode = 0 WHERE PendingTests.Temp_ID = @intTemp"
                                         .AddWithValue("@Position", varRes(5))
                                         .AddWithValue("@intTemp", intTemp)
                               End Select
