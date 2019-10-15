@@ -1,129 +1,128 @@
 -- The following SQL commands are essential to the function of the Rosie Serial LIS service.
--- Some of the commands are specific to SQL Server. I've tried to minimize them, but there are still a few.
+-- Execute the following commands on the SQL Server database of your choice.
 
--- If using MySQL, try 'STR_TO_DATE(REPLACE([DateTime], " ", "0"), "%S%i%k%d%m%y")' as an alternative to the "datetimefromparts" and "try_parse" functions.
+USE lisdb -- Change this to the name of your SQL Server database.
+GO
 
 CREATE TABLE [SampleData](
-	[ID] [int] IDENTITY(1,1) NOT NULL,
-	[Loadlist_ID] [varchar](2) NULL,
-	[Patient_ID] [varchar](27) NULL,
-	[Sample_No] [varchar](12) NULL,
-	[SampleType] [varchar](1) NULL,
-	[Location] [varchar](6) NULL,
-	[Priority] [smallint] NULL,
-	[DateTime] [varchar](12) NULL,
-	[Cups] [varchar](1) NULL,
-	[Dilution] [varchar](3) NULL,
-	[TestsCount] [varchar](2) NULL,
+	[ID] int IDENTITY(1,1) NOT NULL,
+	[Loadlist_ID] varchar(2) NULL,
+	[Patient_ID] varchar(27) NULL,
+	[Sample_No] varchar(12) NULL,
+	[SampleType] varchar(1) NULL,
+	[Location] varchar(6) NULL,
+	[Priority] smallint NULL,
+	[DateTime] varchar(12) NULL,
+	[Cups] varchar(1) NULL,
+	[Dilution] varchar(3) NULL,
+	[TestsCount] varchar(2) NULL,
 	[DateTimeFormatted]  AS (datetimefromparts(try_parse('20'+substring([DateTime],(11),(2))  AS int),substring([DateTime],(9),(2)),try_parse(ltrim(substring([DateTime],(7),(2)))  AS int),substring([DateTime],(5),(2)),substring([DateTime],(3),(2)),substring([DateTime],(1),(2)),(0))),
  CONSTRAINT [PK_SampleData] PRIMARY KEY CLUSTERED ([ID])) ON [PRIMARY]
 GO
 
 CREATE TABLE [SampleResults](
-	[Sample_ID] [int] NULL,
-	[TestName] [varchar](5) NULL,
-	[Result]  AS (TRY_CAST([ResultValue] AS [float])),
-	[Units] [varchar](10) NULL,
-	[Error] [varchar](2) DEFAULT '',
-	[Result_ID] [int] IDENTITY(1,1) NOT NULL,
-	[ResultValue] [varchar](10) NULL,
+	[Sample_ID] int NULL,
+	[TestName] varchar(5) NULL,
+	[Result]  AS (TRY_CAST([ResultValue] AS float)),
+	[Units] varchar(10) NULL,
+	[Error] varchar(2) DEFAULT '',
+	[Result_ID] int IDENTITY(1,1) NOT NULL,
+	[ResultValue] varchar(10) NULL,
  CONSTRAINT [PK_SampleResults] PRIMARY KEY CLUSTERED ([Result_ID] ASC)) ON [PRIMARY]
 GO
 
--- Again, for MySQL, use 'STR_TO_DATE(REPLACE([DateTime], " ", "0"), "%S%i%k%d%m%y")' for the [CalcDateTime] field.
-
 CREATE TABLE [CalibrationResults](
-	[Cal_Test] [varchar](5) NULL,
-	[Cal_Units] [varchar](10) NULL,
-	[Reagent_Lot] [varchar](10) NULL,
-	[Cal_Product] [varchar](10) NULL,
-	[Cal_Prod_Lot] [varchar](10) NULL,
-	[Cal_Op] [varchar](10) NULL,
-	[Cal_DateTime] [varchar](12) NULL,
-	[Cal_Slope] [float] NULL,
-	[Cal_Intercept] [float] NULL,
-	[Coefficients_Num] [int] NULL,
-	[Coefficient_0] [float] NULL,
-	[Coefficient_1] [float] NULL,
-	[Coefficient_2] [float] NULL,
-	[Coefficient_3] [float] NULL,
-	[Coefficient_4] [float] NULL,
-	[Bottle_Vals] [int] NULL,
-	[Val01] [float] NULL,
-	[Res01] [float] NULL,
-	[Val02] [float] NULL,
-	[Res02] [float] NULL,
-	[Val03] [float] NULL,
-	[Res03] [float] NULL,
-	[Val04] [float] NULL,
-	[Res04] [float] NULL,
-	[Val05] [float] NULL,
-	[Res05] [float] NULL,
-	[Val06] [float] NULL,
-	[Res06] [float] NULL,
-	[Val07] [float] NULL,
-	[Res07] [float] NULL,
-	[Val08] [float] NULL,
-	[Res08] [float] NULL,
-	[Val09] [float] NULL,
-	[Res09] [float] NULL,
-	[Val10] [float] NULL,
-	[Res10] [float] NULL,
-	[Val11] [float] NULL,
-	[Res11] [float] NULL,
-	[Val12] [float] NULL,
-	[Res12] [float] NULL,
-	[Val13] [float] NULL,
-	[Res13] [float] NULL,
-	[Val14] [float] NULL,
-	[Res14] [float] NULL,
-	[Val15] [float] NULL,
-	[Res15] [float] NULL,
-	[Val16] [float] NULL,
-	[Res16] [float] NULL,
-	[Val17] [float] NULL,
-	[Res17] [float] NULL,
-	[Val18] [float] NULL,
-	[Res18] [float] NULL,
-	[Val19] [float] NULL,
-	[Res19] [float] NULL,
-	[Val20] [float] NULL,
-	[Res20] [float] NULL,
-	[Calibration_ID] [int] IDENTITY(1,1) NOT NULL,
+	[Cal_Test] varchar(5) NULL,
+	[Cal_Units] varchar(10) NULL,
+	[Reagent_Lot] varchar(10) NULL,
+	[Cal_Product] varchar(10) NULL,
+	[Cal_Prod_Lot] varchar(10) NULL,
+	[Cal_Op] varchar(10) NULL,
+	[Cal_DateTime] varchar(12) NULL,
+	[Cal_Slope] float NULL,
+	[Cal_Intercept] float NULL,
+	[Coefficients_Num] int NULL,
+	[Coefficient_0] float NULL,
+	[Coefficient_1] float NULL,
+	[Coefficient_2] float NULL,
+	[Coefficient_3] float NULL,
+	[Coefficient_4] float NULL,
+	[Bottle_Vals] int NULL,
+	[Val01] float NULL,
+	[Res01] float NULL,
+	[Val02] float NULL,
+	[Res02] float NULL,
+	[Val03] float NULL,
+	[Res03] float NULL,
+	[Val04] float NULL,
+	[Res04] float NULL,
+	[Val05] float NULL,
+	[Res05] float NULL,
+	[Val06] float NULL,
+	[Res06] float NULL,
+	[Val07] float NULL,
+	[Res07] float NULL,
+	[Val08] float NULL,
+	[Res08] float NULL,
+	[Val09] float NULL,
+	[Res09] float NULL,
+	[Val10] float NULL,
+	[Res10] float NULL,
+	[Val11] float NULL,
+	[Res11] float NULL,
+	[Val12] float NULL,
+	[Res12] float NULL,
+	[Val13] float NULL,
+	[Res13] float NULL,
+	[Val14] float NULL,
+	[Res14] float NULL,
+	[Val15] float NULL,
+	[Res15] float NULL,
+	[Val16] float NULL,
+	[Res16] float NULL,
+	[Val17] float NULL,
+	[Res17] float NULL,
+	[Val18] float NULL,
+	[Res18] float NULL,
+	[Val19] float NULL,
+	[Res19] float NULL,
+	[Val20] float NULL,
+	[Res20] float NULL,
+	[Calibration_ID] int IDENTITY(1,1) NOT NULL,
 	[CalcDateTime]  AS (datetimefromparts(try_parse('20'+substring([Cal_DateTime],(11),(2))  AS int),substring([Cal_DateTime],(9),(2)),try_parse(ltrim(substring([Cal_DateTime],(7),(2)))  AS int),substring([Cal_DateTime],(5),(2)),substring([Cal_DateTime],(3),(2)),substring([Cal_DateTime],(1),(2)),(0))),
 	[ActualDateTime] [datetime2](7) DEFAULT GETDATE(),
  CONSTRAINT [PK_CalibrationResults] PRIMARY KEY CLUSTERED ([Calibration_ID] ASC)) ON [PRIMARY]
 GO
 
 CREATE TABLE [PendingTests](
-	[Position] [varchar](2) NULL,
-	[PatientName] [varchar](27) NULL,
-	[SampleNo] [varchar](12) NULL,
-	[Test1] [varchar](5) NULL,
-	[Test2] [varchar](5) NULL,
-	[Test3] [varchar](5) NULL,
-	[Test4] [varchar](5) NULL,
-	[Test5] [varchar](5) NULL,
-	[Test6] [varchar](5) NULL,
-	[SampleType] [char](1) DEFAULT 1,
-	[ToDelete] [bit] NOT NULL DEFAULT 0,
-	[Temp_ID] [int] IDENTITY(1,1) NOT NULL,
-	[RejectCode] [char](1) DEFAULT 0,
-	[intPriority] [int] DEFAULT 0,
-	[DilFactor] [int] NOT NULL DEFAULT 1,
-	[PendingSending] [bit] NOT NULL DEFAULT 0,
+	[Position] varchar(2) NULL,
+	[PatientName] varchar(27) NULL,
+	[SampleNo] varchar(12) NULL,
+	[Test1] varchar(5) NULL,
+	[Test2] varchar(5) NULL,
+	[Test3] varchar(5) NULL,
+	[Test4] varchar(5) NULL,
+	[Test5] varchar(5) NULL,
+	[Test6] varchar(5) NULL,
+	[SampleType] char(1) DEFAULT 1,
+	[ToDelete] bit NOT NULL DEFAULT 0,
+	[Temp_ID] int IDENTITY(1,1) NOT NULL,
+	[RejectCode] char(1) DEFAULT 0,
+	[intPriority] int DEFAULT 0,
+	[DilFactor] int NOT NULL DEFAULT 1,
+	[PendingSending] bit NOT NULL DEFAULT 0,
  CONSTRAINT [PK_TempPendings] PRIMARY KEY CLUSTERED ([Temp_ID] ASC)) ON [PRIMARY]
 GO
 
 -- The following SQL commands are not strictly required, but they should prove very helpful.
 
 CREATE TABLE [ErrorCodes](
-	[Error_Code] [varchar](2) NULL,
-	[Suppress_Result] [bit] NOT NULL DEFAULT 0,
-	[Error_Interpretation] [varchar](255) NULL,
-	[Alt_Interpretations] [varchar](255) NULL,
-	[Explanation] [varchar](255) NULL,
-	[Error_ID] [int] IDENTITY(1,1) NOT NULL,
+	[Error_Code] varchar(2) NULL,
+	[Suppress_Result] bit NOT NULL DEFAULT 0,
+	[Error_Interpretation] varchar(255) NULL,
+	[Alt_Interpretations] varchar(255) NULL,
+	[Explanation] varchar(255) NULL,
+	[Error_ID] int IDENTITY(1,1) NOT NULL,
  CONSTRAINT [PK_ErrorCodes] PRIMARY KEY CLUSTERED ([Error_ID] ASC)) ON [PRIMARY]
 GO
 
@@ -153,9 +152,9 @@ VALUES
 GO
 
 CREATE TABLE [RejectReasons](
-	[Reason_ID] [int] IDENTITY(1,1) NOT NULL,
-	[Reason] [varchar](50) NULL,
-	[ReasonCode] [char](1) NULL,
+	[Reason_ID] int IDENTITY(1,1) NOT NULL,
+	[Reason] varchar(50) NULL,
+	[ReasonCode] char(1) NULL,
  CONSTRAINT [PK_RejectReasons] PRIMARY KEY CLUSTERED ([Reason_ID] ASC)) ON [PRIMARY]
 GO
 
@@ -175,9 +174,9 @@ VALUES
 	('Incorrect Fluid Type','9')
 GO
 
-CREATE TABLE [dbo].[SampleTypes](
-	[SampleTypeCode] [varchar](1) NOT NULL,
-	[SampleTypeWord] [varchar](16) NULL,
+CREATE TABLE [SampleTypes](
+	[SampleTypeCode] varchar(1) NOT NULL,
+	[SampleTypeWord] varchar(16) NULL,
  CONSTRAINT [PK_SampleTypes] PRIMARY KEY CLUSTERED ([SampleTypeCode] ASC)) ON [PRIMARY]
 GO
 
@@ -196,10 +195,10 @@ VALUES
 	('W','Whole Blood')
 GO
 
-CREATE TABLE [dbo].[Priorities](
-	[PriorityCode] [smallint] NOT NULL,
-	[PriorityWord] [varchar](8) NULL,
-	[strPriority] [varchar](10) NULL,
+CREATE TABLE [Priorities](
+	[PriorityCode] smallint NOT NULL,
+	[PriorityWord] varchar(8) NULL,
+	[strPriority] varchar(10) NULL,
  CONSTRAINT [PK_Priorities] PRIMARY KEY CLUSTERED ([PriorityCode] ASC)) ON [PRIMARY]
 GO
 
@@ -214,11 +213,12 @@ VALUES
 GO
 
 CREATE TABLE [TestCodes](
-	[ID] [int] IDENTITY(1,1) NOT NULL,
-	[TestCode] [varchar](5) NOT NULL,
-	[TestName] [varchar](255) NULL,
-	[SampleType] [char](1) NOT NULL DEFAULT 1,
- CONSTRAINT [PK_TestCodes] PRIMARY KEY CLUSTERED ([ID] ASC)
+	[ID] int IDENTITY(1,1) NOT NULL,
+	[TestCode] varchar(5) NOT NULL,
+	[TestName] varchar(255) NULL,
+	[SampleType] char(1) NOT NULL DEFAULT 1,
+ CONSTRAINT [PK_TestCodes] PRIMARY KEY CLUSTERED ([ID] ASC))
+ GO
  
  -- The TestCodes table should be populated with the full list of tests relevant to the installation environment.
  -- The SampleType should be populated with the default sample type for each test.
