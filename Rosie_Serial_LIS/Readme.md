@@ -15,9 +15,10 @@ Please note: The software also requires a database server in order to function p
 
 ## Database
 
-This Windows service is designed to connect to a database of your choice. Currently supported connection drivers include Microsoft SQL Server (for which it was originally designed), MySQL, and ODBC. At the time of initial release, it has not been extensively tested with anything but SQL Server, so be warned. Due to the deprecation of the native Oracle client in recent versions of the .NET framework, Oracle databases are not currently supported.
+This Windows service is designed to connect to a database of your choice. Currently supported connection drivers include Microsoft SQL Server (for which it was originally designed), MySQL, and ODBC. It has been tested with SQL Server and MySQL databases, but it *should* be compatible with any ODBC connector. Due to the deprecation of the native Oracle client in recent versions of the .NET framework, Oracle databases are not currently supported without a third-party ODBC driver.
+Whichever data source you use, just be sure to specify a valid connection string in the Rosie_Serial_LIS.exe.config file as discussed below.
 
-While some parts of the database are fairly flexible, the Rosie Serial LIS service expects certain tables and fields to be present. To that end, several SQL "CREATE TABLE" scripts have been provided in the **sql_scripts.sql** file. Please execute these scripts in your database before attempting to start this service.
+While some parts of the database are fairly flexible, the Rosie Serial LIS service expects certain tables and fields to be present. To that end, several SQL "CREATE TABLE" scripts have been provided in the **sql_scripts** folder -- **sqlserver_scripts.sql** for MS SQL Server or **mysql_scripts.sql** for MySQL. Please execute these scripts in your database before attempting to start this service.
 
 ## Configuration
 
@@ -36,7 +37,7 @@ Database Parameters
 ---
 * databaseType - `SQL Server` (default), `MySQL`, or `ODBC`.
 * maxTests - The maximum number of tests allowed by the PendingTests table. The default is 6; the default PendingTests table includes fields from `Test1` up to `Test6`, so if you change the maxTests value, be sure to include `Test#` fields up to (and including) the maxTests value.
-
+* connectionString - The database connection string specific to your server/database installation. Typical values might be something like "server=127.0.0.1;database=lisdb;uid=lis_user;pwd=password123".
 
 ## Usage
 

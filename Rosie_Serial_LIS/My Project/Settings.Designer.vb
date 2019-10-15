@@ -111,8 +111,7 @@ Namespace My
         <Global.System.Configuration.ApplicationScopedSettingAttribute(),  _
          Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
          Global.System.Configuration.SpecialSettingAttribute(Global.System.Configuration.SpecialSetting.ConnectionString),  _
-         Global.System.Configuration.DefaultSettingValueAttribute("Data Source=CLINPHARMPC4468\SQLExpress;Initial Catalog=LISDB;Integrated Security="& _ 
-            "True")>  _
+         Global.System.Configuration.DefaultSettingValueAttribute("server=127.0.0.1;database=lisdb;uid=lisuser;pwd=rosie_LIS")>  _
         Public ReadOnly Property connectionString() As String
             Get
                 Return CType(Me("connectionString"),String)

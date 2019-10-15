@@ -188,9 +188,9 @@
     <None Include="Rosie_Serial_LIS_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="mysql_scripts.sql" />
+    <Content Include="sql_scripts\mysql_scripts.sql" />
     <Content Include="Rosie-the-Robot.ico" />
-    <Content Include="sqlserver_scripts.sql" />
+    <Content Include="sql_scripts\sqlserver_scripts.sql" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.5.2">
@@ -204,6 +204,7 @@
       <Install>false</Install>
     </BootstrapperPackage>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
