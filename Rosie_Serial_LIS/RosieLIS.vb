@@ -54,9 +54,10 @@ Public Class RosieLIS
      Protected Overrides Sub OnStop()
           ' Definitely want to close the COM port when we're done.
           Try
-               If Com1.IsOpen Then
-                    Com1.Close()
+               If Com1 IsNot Nothing Then
+                    If Com1.IsOpen Then Com1.Close()
                     Com1.Dispose()
+                    Com1 = Nothing
                End If
           Catch ex As Exception
                HandleError(ex)
@@ -532,29 +533,29 @@ Public Class RosieLIS
 
      Function SampleRequestMessage(boolDelete As Boolean, strPatientID As String, strSampleNo As String, strSampleType As String, intPriority As Integer, ByRef strTests() As String, Optional iDilFactor As Integer = 1) As String
           ' This function returns a string to tell the instrument what tests to run on a sample.
-          Dim strHex As String
+          Dim strOut As String
           Dim intTests As Integer, intCount As Integer
 
           ' Count how many tests we need to add.
           intTests = UBound(strTests, 1) + 1
           intCount = 0
-          strHex = Chr(2) & "D" & Chr(28) & "0" & Chr(28) & "0" & Chr(28)
+          strOut = Chr(2) & "D" & Chr(28) & "0" & Chr(28) & "0" & Chr(28)
           If boolDelete Then
-               strHex &= "D"
+               strOut &= "D"
           Else
-               strHex &= "A"
+               strOut &= "A"
           End If
-          strHex = strHex & Chr(28) & strPatientID & Chr(28) & strSampleNo & Chr(28) ' Message type, carrier ID, loadlist ID, Add/Delete, Patient ID, Sample ID.
-          strHex = strHex & strSampleType & Chr(28) & "" & Chr(28) & intPriority & Chr(28) & "1" & Chr(28) '& "**" ' Sample type, location, priority, and # of cups for the sample.
-          strHex = strHex & "**" & Chr(28) & iDilFactor & Chr(28) ' Sample position and dilution factor.
-          strHex = strHex & intTests & Chr(28) ' The number of tests.
+          strOut &= Chr(28) & strPatientID & Chr(28) & strSampleNo & Chr(28) ' Message type, carrier ID, loadlist ID, Add/Delete, Patient ID, Sample ID.
+          strOut &= strSampleType & Chr(28) & "" & Chr(28) & intPriority & Chr(28) & "1" & Chr(28) ' Sample type, location, priority, and # of cups for the sample.
+          strOut &= "**" & Chr(28) & iDilFactor & Chr(28) ' Sample position (always "**" since positions have to be assigned on the instrument) and dilution factor.
+          strOut &= intTests & Chr(28) ' The number of tests requested.
           Do
-               strHex = strHex & StrConv(strTests(intCount), vbUpperCase) & Chr(28)
+               strOut &= StrConv(strTests(intCount), vbUpperCase) & Chr(28)
                intCount += 1
           Loop Until intCount = intTests
 
-          strHex = strHex & CHKSum(strHex) & Chr(3)
-          SampleRequestMessage = strHex
+          strOut &= CHKSum(strOut) & Chr(3)
+          SampleRequestMessage = strOut
 
      End Function
 
