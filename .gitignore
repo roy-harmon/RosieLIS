@@ -338,3 +338,5 @@ ASALocalRun/
 
 # BeatPulse healthcheck temp database
 healthchecksdb
+/Rosie_Serial_LIS/sqlserver_scripts.sql
+/Rosie_Serial_LIS/mysql_scripts.sql

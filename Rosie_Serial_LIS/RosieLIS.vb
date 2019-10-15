@@ -192,12 +192,12 @@ Public Class RosieLIS
                     Using command As DbCommand = cnSQL.CreateCommand()
                          If strType = "P" Then
                               ' Poll message. If there are any pending sample requests that haven't been sent, send one now.
-                              command.CommandText = "SELECT * FROM [PendingTests] WHERE [PendingSending]='TRUE'"
+                              command.CommandText = "SELECT * FROM PendingTests WHERE PendingSending='TRUE'"
                          ElseIf strType = "I" Then
                               ' Query message. This likely requires a different database setup to be useful. 
                               ' For now, just send any pending sample requests for the sample in question.
                               Dim varRes = Split(strData, Chr(28), , CompareMethod.Binary)
-                              command.CommandText = "SELECT * FROM [PendingTests] WHERE [PendingSending]='TRUE' AND SampleNo = @SampleNo"
+                              command.CommandText = "SELECT * FROM PendingTests WHERE PendingSending='TRUE' AND SampleNo = @SampleNo"
                               command.AddWithValue("@SampleNo", varRes(1))
                          End If
                          ' Note that the command may return more than one row. The only downside is marginally increased network traffic.
