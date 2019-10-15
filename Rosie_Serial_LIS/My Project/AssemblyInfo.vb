@@ -12,7 +12,7 @@ Imports System.Runtime.InteropServices
 <Assembly: AssemblyDescription("Windows service to communicate with Rosie over serial COM port.")>
 <Assembly: AssemblyCompany("Roy Harmon")>
 <Assembly: AssemblyProduct("Rosie_Serial_LIS")>
-<Assembly: AssemblyCopyright("Copyright ©  2016 - 2018")>
+<Assembly: AssemblyCopyright("Copyright ©  2016 - 2019")>
 <Assembly: AssemblyTrademark("")>
 
 <Assembly: ComVisible(False)>

@@ -33,7 +33,8 @@ Public Class RosieLIS
                .NewLine = Chr(3)
           End With
      End Sub
-     Function GetConnected() As IDbConnection
+
+     Shared Function GetConnected() As IDbConnection
           Dim cnSQL As IDbConnection
           Select Case My.Settings.databaseType
                Case "SQL Server"
@@ -137,7 +138,7 @@ Public Class RosieLIS
           End If
      End Sub
 
-     Function CHKSum(strString) As String
+     Shared Function CHKSum(strString) As String
           ' This function returns the checksum for the data string passed to it.
           ' If I've done it right, the checksum is calculated by binary 8-bit addition of all included characters
           ' with the 8th or parity bit assumed zero. Carries beyond the 8th bit are lost. The 8-bit result is
@@ -167,7 +168,7 @@ Public Class RosieLIS
 
      End Function
 
-     Function ResultAcceptance(Optional ByVal resultAccepted As Boolean = True) As String
+     Shared Function ResultAcceptance(Optional ByVal resultAccepted As Boolean = True) As String
           ' This function returns a string indicating to the instrument that
           ' the result has been accepted (or rejected) by the LIS computer.
           Dim strHex As String
@@ -458,7 +459,9 @@ Public Class RosieLIS
                          For Each param As DbParameter In insert.Parameters
                               If Len(param.Value) > 0 Then param.Size = Len(param.Value)
                          Next
-                         insert.CommandText = strSQL1 & strSQL2 & " )"
+#Disable Warning CA2100 ' Review SQL queries for security vulnerabilities
+                         insert.CommandText = strSQL1 & strSQL2 & " )" ' This is all coming from the values in the fieldArray list, so no user input here.
+#Enable Warning CA2100 ' Review SQL queries for security vulnerabilities
                          insert.Prepare()
                          intRes = insert.ExecuteNonQuery()
                     End Using
@@ -524,7 +527,7 @@ Public Class RosieLIS
           End If
      End Function
 
-     Sub AppendToLog(strText As String)
+     Shared Sub AppendToLog(strText As String)
           Dim strName As String = Environ("AllUsersProfile") & "\Rosie_Serial_LIS\Serial_Logs\SerialLog_" & Today.ToString("yyyy-MM-dd") & ".txt"
           If Directory.Exists(Environ("AllUsersProfile") & "\Rosie_Serial_LIS\Serial_Logs\") = False Then
                Directory.CreateDirectory(Environ("AllUsersProfile") & "\Rosie_Serial_LIS\Serial_Logs\")
@@ -533,7 +536,7 @@ Public Class RosieLIS
           File.AppendAllText(strName, strText)
      End Sub
 
-     Function NoRequestMessage() As String
+     Shared Function NoRequestMessage() As String
           ' This function returns a string indicating to the instrument that the computer has no pending requests.
           Dim strHex As String
           strHex = Chr(2) & "N" & Chr(28)
@@ -541,7 +544,7 @@ Public Class RosieLIS
           NoRequestMessage = strHex
      End Function
 
-     Function SampleRequestMessage(boolDelete As Boolean, strPatientID As String, strSampleNo As String, strSampleType As String, intPriority As Integer, ByRef strTests() As String, Optional iDilFactor As Integer = 1) As String
+     Shared Function SampleRequestMessage(boolDelete As Boolean, strPatientID As String, strSampleNo As String, strSampleType As String, intPriority As Integer, ByRef strTests() As String, Optional iDilFactor As Integer = 1) As String
           ' This function returns a string to tell the instrument what tests to run on a sample.
           Dim strOut As String
           Dim intTests As Integer, intCount As Integer
