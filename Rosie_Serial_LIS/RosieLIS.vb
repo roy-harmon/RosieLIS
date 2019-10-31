@@ -65,8 +65,9 @@ Public Class RosieLIS
           End Try
      End Sub
 
-     Sub HandleError(ex As Exception)
+     Shared Sub HandleError(ex As Exception)
           Dim message As String = ex.Source & " - Error: " & ex.Message & " at RosieLIS Line " & ex.LineNumber()
+          message &= vbCrLf & "Exception: " & ex.ToString()
           AppendToLog(message)
           EventLog.WriteEntry(ex.Source, message, EventLogEntryType.Error)
      End Sub
@@ -366,12 +367,16 @@ Public Class RosieLIS
                               intCoefs = varRes(10) ' Number of coefficients.
                               ' Not all tests have all 5 coefficients.
                               ' Fill in the values for each coefficient.
+                              ' Note that intCoefs may be higher than the actual number of coefficients,
+                              ' so be sure to fill in zeroes for any empty strings.
                               For i As Integer = intCoefs To 1 Step -1
+                                   If varRes(10 + i).Length = 0 Then varRes(10 + i) = "0"
                                    .AddWithValue("@Coefficient_" & i - 1, varRes(10 + i), DbType.Double)
                               Next
-                              ' Fill in DBNull values for the ones that don't apply.
+                              ' Fill in zeroes for the ones that don't apply.
+                              ' If there are more than 4 coefficients, skip this entirely.
                               For i As Integer = intCoefs To 4 Step 1
-                                   .AddWithValue("@Coefficient_" & i, DBNull.Value, DbType.Double)
+                                   .AddWithValue("@Coefficient_" & i, "0", DbType.Double)
                               Next
                               .AddWithValue("@Bottle_Vals", varRes(11 + intCoefs), DbType.Int32)
                               intVals = varRes(11 + intCoefs) ' Number of levels tested. Each option (3-5) has a different number of test results.
@@ -422,6 +427,15 @@ Public Class RosieLIS
                                    .Prepare()
                                    Dim unused = .ExecuteNonQuery()
                                    SendCommData(ResultAcceptance)
+                              Catch ex As FormatException
+                                   ' If some value wasn't able to be cast as its expected data type, log enough information to figure out why.
+                                   HandleError(ex)
+                                   Dim sParams As String = ""
+                                   For i As Integer = 0 To .Parameters.Count - 1
+                                        sParams &= .Parameters(i).ParameterName & "," & .Parameters(i).DbType & ":" & .Parameters(i).Value & ";"
+                                   Next
+                                   AppendToLog("Parameters: " & sParams)
+                                   SendCommData(Chr(2) & "M" & Chr(28) & "R" & Chr(28) & "1" & Chr(28) & "24" & Chr(3)) ' Result Reject Message.
                               Catch ex As Exception
                                    ' If it doesn't work, record the error and reject the result.
                                    ' We'll have 12 minutes to deal with it before a DMW/Host Communication Error is thrown.

@@ -340,3 +340,8 @@ ASALocalRun/
 healthchecksdb
 /Rosie_Serial_LIS/sqlserver_scripts.sql
 /Rosie_Serial_LIS/mysql_scripts.sql
+/Rosie_Serial_LIS/sql_scripts
+/Rosie_Serial_LIS/sql_scripts.sql
+/mysql_scripts.sql
+/sqlserver_scripts.sql
+/sql_scripts.sql

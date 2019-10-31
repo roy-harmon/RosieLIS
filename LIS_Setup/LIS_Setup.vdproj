@@ -39,12 +39,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_1C2ADC8819224767B8BB2C454AD37818"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_241726D8D37F2211363B55414F2EA95A"
         "OwnerKey" = "8:_72F67E8A9FCE0E933A9AED3D8F87F099"
         "MsmSig" = "8:_UNDEFINED"
@@ -395,26 +389,6 @@
             "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_1C2ADC8819224767B8BB2C454AD37818"
-            {
-            "SourcePath" = "8:..\\sql_scripts.sql"
-            "TargetName" = "8:sql_scripts.sql"
-            "Tag" = "8:"
-            "Folder" = "8:_AC6C5FC7022844B3BF22ABAB8E8D7138"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_241726D8D37F2211363B55414F2EA95A"
             {
             "AssemblyRegister" = "3:1"
@@ -645,7 +619,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Rosie Serial LIS"
         "ProductCode" = "8:{B6ECC3CC-BFE7-469E-BF02-CB31E6A7BB63}"
-        "PackageCode" = "8:{66C97EEF-D862-4D20-B67C-218AD326E8AA}"
+        "PackageCode" = "8:{5EBAC20B-8167-4C9E-AE8A-F5D6353EA095}"
         "UpgradeCode" = "8:{35DA3D23-9969-4369-A14A-F818B767F534}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
