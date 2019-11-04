@@ -41,6 +41,8 @@ Database Parameters
 
 ## Usage
 
+The program runs as a Windows service under a Local System account. After installation, the service should automatically start on boot.
+
 While it can be configured for several modes of operation, the typical usage is as follows: 
 * The analyzer polls the computer for pending test requests.
 * Pending test requests are pulled from a database (specified in the config file) and sent to the analyzer.
@@ -51,6 +53,7 @@ It also stores calibration results to the database, but due to some bugs in the 
 * The Cal_DateTime value actually represents the timestamp from the beginning of the reagent lot's previous calibration.
 * Due to the above timestamp discrepancy, the first calibration of each lot will have a Cal_DateTime value of "000019311269" (12/31/xx69 7:00 PM).
 * Since the new coefficients are not yet calculated when the data is transmitted, coefficient values given are from the previous calibration.
+* The actual number of coefficients may differ from the value reported by the instrument ("Coefficients_Num"). For example, it may report that there are 5 coefficients for a linear calibration, but the first two are numbers and the rest are null.
 * All result ("Res##") values are calculated using the current calibration's measurements with the prior calibration's coefficients.
 * The Cal_Slope value is always given as exactly "1".
 * The Cal_Intercept value is always given as exactly "0". Since this holds true even when the actual intercept is >1, it seems unlikely that this is an integer rounding issue.
