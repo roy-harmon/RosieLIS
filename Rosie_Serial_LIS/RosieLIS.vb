@@ -1,20 +1,21 @@
-﻿Imports RosieService.ICommand
+﻿Imports RoyHarmon.RosieLIS.ICommand
 Imports System.Data.Common
 Imports System.IO
 Imports System.IO.Ports
 
-Public Class RosieLIS
+Public Class RosieLISService
 
      Public WithEvents ComPort As SerialPort
-     Public intTemp As Integer
+     Private intTemp As Integer
 
-     Protected Overrides Sub OnStart(ByVal args() As String)
+     Protected Sub OnStart()
           Try
                ' Set up the serial port so the service can do its work.
                SerialOpen()
           Catch ex As Exception
                ' Write any exceptions to the event log.
                HandleError(ex)
+               Throw
           End Try
           Try
                Using cnSQL As DbConnection = GetConnected()
@@ -23,6 +24,7 @@ Public Class RosieLIS
           Catch ex As Exception
                ' If there was a problem with the connection, write it to the log.
                HandleError(ex)
+               Throw
           End Try
      End Sub
 
@@ -52,7 +54,7 @@ Public Class RosieLIS
           cnSQL.Open()
           Return cnSQL
      End Function
-     Protected Overrides Sub OnStop()
+     Protected Sub OnStop()
           ' Definitely want to close the COM port when we're done.
           Try
                If ComPort IsNot Nothing Then
@@ -62,10 +64,12 @@ Public Class RosieLIS
                End If
           Catch ex As Exception
                HandleError(ex)
+               Throw
           End Try
      End Sub
 
      Shared Sub HandleError(ex As Exception)
+          If ex Is Nothing Then Exit Sub
           Dim message As String = ex.Source & " - Error: " & ex.Message & " at RosieLIS Line " & ex.LineNumber()
           message &= vbCrLf & "Exception: " & ex.ToString()
           AppendToLog(message)
@@ -87,6 +91,7 @@ Public Class RosieLIS
                AppendToLog("O: " & strData)
           Catch ex As Exception
                HandleError(ex)
+               Throw
           End Try
 
      End Sub
@@ -98,7 +103,7 @@ Public Class RosieLIS
 
           If ComPort.BytesToRead = 0 Then Exit Sub
 
-          Dim Incoming As String
+          Dim Incoming As String = ""
           Dim intCom As Integer
 
           Do
@@ -239,9 +244,13 @@ Public Class RosieLIS
                          End Using
                     End Using
                End Using
+#Disable Warning CA1031 ' Do not catch general exception types
+#Disable Warning CA1031 ' Do not catch general exception types
           Catch ex As Exception
+#Enable Warning CA1031 ' Do not catch general exception types
                HandleError(ex)
                Return ex.LineNumber()
+#Enable Warning CA1031 ' Do not catch general exception types
           End Try
      End Function
 
@@ -249,6 +258,10 @@ Public Class RosieLIS
           ' Call a procedure to process the incoming data according to the message type 
           ' based on the first letter of the message.
           Try
+               If strData Is Nothing Or Len(strData) = 0 Then
+                    Throw New ArgumentNullException(NameOf(strData))
+                    Exit Sub
+               End If
                Select Case strData.Substring(0, 1)
                     Case "P", "I"
                          ' strData is a Poll message or Query Message.
@@ -285,9 +298,13 @@ Public Class RosieLIS
                ' Log it.
                AppendToLog("I:  " & strData)
 
+#Disable Warning CA1031 ' Do not catch general exception types
+#Disable Warning CA1031 ' Do not catch general exception types
           Catch ex As Exception
+#Enable Warning CA1031 ' Do not catch general exception types
                HandleError(ex)
                ComPort.Write(Chr(21))
+#Enable Warning CA1031 ' Do not catch general exception types
           End Try
 
      End Sub
@@ -320,10 +337,14 @@ Public Class RosieLIS
                End Using
                AppendToLog("In: " & strData)
                Return 0
+#Disable Warning CA1031 ' Do not catch general exception types
+#Disable Warning CA1031 ' Do not catch general exception types
           Catch ex As Exception
+#Enable Warning CA1031 ' Do not catch general exception types
                HandleError(ex)
                SendCommData(ResultAcceptance(False))
                Return ex.LineNumber()
+#Enable Warning CA1031 ' Do not catch general exception types
           End Try
      End Function
 
@@ -420,7 +441,7 @@ Public Class RosieLIS
                                    ' Explicitly set the size of each parameter to make the Prepare command happy.
                                    If Len(param.Value) > 0 Then param.Size = Len(param.Value)
                                    ' Fill all remaining parameters with DBNulls.
-                                   If IsNull(param.Value) Then param.Value = DBNull.Value
+                                   If param.Value Is Nothing Then param.Value = DBNull.Value
                               Next
                               ' Try it out!
                               Try
@@ -436,20 +457,28 @@ Public Class RosieLIS
                                    Next
                                    AppendToLog("Parameters: " & sParams)
                                    SendCommData(Chr(2) & "M" & Chr(28) & "R" & Chr(28) & "1" & Chr(28) & "24" & Chr(3)) ' Result Reject Message.
+#Disable Warning CA1031 ' Do not catch general exception types
+#Disable Warning CA1031 ' Do not catch general exception types
                               Catch ex As Exception
+#Enable Warning CA1031 ' Do not catch general exception types
                                    ' If it doesn't work, record the error and reject the result.
                                    ' We'll have 12 minutes to deal with it before a DMW/Host Communication Error is thrown.
                                    HandleError(ex)
                                    SendCommData(Chr(2) & "M" & Chr(28) & "R" & Chr(28) & "1" & Chr(28) & "24" & Chr(3)) ' Result Reject Message.
+#Enable Warning CA1031 ' Do not catch general exception types
                               End Try
                          End With
                     End Using
                End Using
                Return 0
+#Disable Warning CA1031 ' Do not catch general exception types
+#Disable Warning CA1031 ' Do not catch general exception types
           Catch ex As Exception
+#Enable Warning CA1031 ' Do not catch general exception types
                HandleError(ex)
                SendCommData(ResultAcceptance(False))
                Return ex.LineNumber()
+#Enable Warning CA1031 ' Do not catch general exception types
           End Try
      End Function
      Function ResultMessage(ByVal strData As String)
@@ -476,6 +505,7 @@ Public Class RosieLIS
                               If Len(param.Value) > 0 Then param.Size = Len(param.Value)
                          Next
 #Disable Warning CA2100 ' Review SQL queries for security vulnerabilities
+                         ' These strings are all pre-defined in the code above but selected based on which fields contain non-null values.
                          insert.CommandText = strSQL1 & strSQL2 & " )" ' This is all coming from the values in the fieldArray list, so no user input here.
 #Enable Warning CA2100 ' Review SQL queries for security vulnerabilities
                          insert.Prepare()
@@ -488,9 +518,9 @@ Public Class RosieLIS
                     End Using
                     Dim str1 As String = "INSERT INTO SampleResults ( Sample_ID, TestName"
                     Dim str2 As String = " ) VALUES ( @Sample_ID, @TestName"
-                    Dim intCount As String = Nothing
+                    Dim intCount As Integer
 
-                    Do Until intCount = varRes(10)
+                    Do Until intCount = CInt(varRes(10))
                          Using insert As DbCommand = cnSQL.CreateCommand()
                               str1 = "INSERT INTO SampleResults ( Sample_ID, TestName"
                               str2 = " ) VALUES ( @Sample_ID, @TestName"
@@ -528,23 +558,18 @@ Public Class RosieLIS
 
                SendCommData(ResultAcceptance)
                Return 0
+#Disable Warning CA1031 ' Do not catch general exception types
           Catch ex As Exception
                HandleError(ex)
                SendCommData(ResultAcceptance(False))
                Return ex.LineNumber()
+#Enable Warning CA1031 ' Do not catch general exception types
           End Try
      End Function
 
-     Public Shared Function IsNull(ByVal expression) As Boolean
-          If expression Is Nothing Then
-               IsNull = True
-          Else
-               IsNull = False
-          End If
-     End Function
-
      Shared Sub AppendToLog(strText As String)
-          Dim strName As String = Environ("AllUsersProfile") & "\Rosie_Serial_LIS\Serial_Logs\SerialLog_" & Today.ToString("yyyy-MM-dd") & ".txt"
+          Static ci As System.Globalization.CultureInfo = System.Globalization.CultureInfo.GetCultureInfo("en-US")
+          Dim strName As String = Environ("AllUsersProfile") & "\Rosie_Serial_LIS\Serial_Logs\SerialLog_" & Today.ToString("yyyy-MM-dd", ci.DateTimeFormat) & ".txt"
           If Directory.Exists(Environ("AllUsersProfile") & "\Rosie_Serial_LIS\Serial_Logs\") = False Then
                Directory.CreateDirectory(Environ("AllUsersProfile") & "\Rosie_Serial_LIS\Serial_Logs\")
           End If
@@ -557,14 +582,16 @@ Public Class RosieLIS
           Dim strHex As String
           strHex = Chr(2) & "N" & Chr(28)
           strHex = strHex & CHKSum(strHex) & Chr(3)
-          NoRequestMessage = strHex
+          Return strHex
      End Function
 
      Shared Function SampleRequestMessage(boolDelete As Boolean, strPatientID As String, strSampleNo As String, strSampleType As String, intPriority As Integer, ByRef strTests() As String, Optional iDilFactor As Integer = 1) As String
           ' This function returns a string to tell the instrument what tests to run on a sample.
           Dim strOut As String
           Dim intTests As Integer, intCount As Integer
-
+          If strTests Is Nothing Or UBound(strTests) = 0 Then
+               Throw New ArgumentNullException(NameOf(strTests))
+          End If
           ' Count how many tests we need to add.
           intTests = UBound(strTests, 1) + 1
           intCount = 0
