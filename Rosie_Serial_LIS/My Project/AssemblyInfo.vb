@@ -1,4 +1,5 @@
-﻿Imports System
+﻿Imports System.Resources
+Imports System
 Imports System.Reflection
 Imports System.Runtime.InteropServices
 
@@ -8,7 +9,7 @@ Imports System.Runtime.InteropServices
 
 ' Review the values of the assembly attributes
 
-<Assembly: AssemblyTitle("RosieService")>
+<Assembly: AssemblyTitle("RosieLIS")>
 <Assembly: AssemblyDescription("Windows service to communicate with Rosie over serial COM port.")>
 <Assembly: AssemblyCompany("Roy Harmon")>
 <Assembly: AssemblyProduct("Rosie_Serial_LIS")>
@@ -33,3 +34,4 @@ Imports System.Runtime.InteropServices
 
 <Assembly: AssemblyVersion("1.1.0.0")>
 <Assembly: AssemblyFileVersion("1.1.0.0")>
+<Assembly: NeutralResourcesLanguage("en-US")>
