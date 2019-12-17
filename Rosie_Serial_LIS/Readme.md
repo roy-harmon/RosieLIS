@@ -27,7 +27,7 @@ The "Rosie_Serial_LIS.exe.config" file contains several configuration items that
 Serial Port Parameters
 ---
 * portName - Change this to the COM port of whichever serial port you intend to connect to the Dimension analyzer. Default = COM1.
-* baudRate - Valid parameters include 300, 600, 1200, 2400, 4800, 9600, and 19200. Default is 9600, since all Dimension EXL models have to use it.
+* baudRate - Valid parameters include 300, 600, 1200, 2400, 4800, 9600, and 19200. Default is 9600, since Dimension EXL models seem to be restricted to that speed.
 * parity - None = 0 (default), Odd = 1, Even = 2.
 * dataBits - 7 or 8 (default).
 * stopBits - 1 (default) or 2.
@@ -57,6 +57,13 @@ It also stores calibration results to the database, but due to some bugs in the 
 * All result ("Res##") values are calculated using the current calibration's measurements with the prior calibration's coefficients.
 * The Cal_Slope value is always given as exactly "1".
 * The Cal_Intercept value is always given as exactly "0". Since this holds true even when the actual intercept is >1, it seems unlikely that this is an integer rounding issue.
+* The "# of Coefficients" value may not be accurate. For linear assays with only two coefficients, the calibration result message returns a "# of Coefficients" ("Coefficients_Num") of 5. So while the interface specification states that the Coefficients field ("Coefficient_#") is "Repeated # Of Coefficients Times," it will return five values -- two numbers and three empty elements.
+
+## User Interface
+
+A graphical user interface is not included at this time because most use cases will involve another application for management of patient information and test requests. Those applications (the good ones, anyway) are typically capable of interfacing with a SQL Server or MySQL database directly. Currently, the RosieLIS software only forms a bridge between the instrument and a database server; this database server can be accessed by third-party programs to automatically transmit test requests to the instrument and pull results into the reporting software.
+
+A simple GUI might be added in the future, but mostly for demonstration purposes. The real benefit of this software is in its ability to integrate with other systems, so while a GUI could be used, it would be less efficient in a production environment.
 
 ## Contributing
 
@@ -64,7 +71,7 @@ Pull requests are welcome. For major changes, please open an issue first to disc
 
 ## Acknowledgements
 
-This software was written using information from the Dimension Clinical Chemistry Systems Interface Specification Guide, downloaded from the Siemens Healthineers Document Library. 
+This software was written using information from the Dimension Clinical Chemistry Systems Interface Specification Guide, downloaded from the [Siemens Healthineers Document Library](https://doclib.siemens-healthineers.com/document/600706). 
 Support for MySQL uses the Oracle MySQL team's MySQL Connector/.NET 8.0, used under the GPLv2 license as outlined [here](https://downloads.mysql.com/docs/licenses/connector-net-8.0-gpl-en.pdf).
 Dimension, EXL, and Xpand are trademarks of Siemens Healthcare Diagnostics.
 

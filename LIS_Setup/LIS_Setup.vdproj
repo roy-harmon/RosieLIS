@@ -51,12 +51,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_3B215FB8360B4387BB69BAF8D29D4DB6"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_4F1FEFC6696979E21DBE04F64A84426A"
         "OwnerKey" = "8:_DFAAAD51C77648F387E5A871860FFAE7"
         "MsmSig" = "8:_UNDEFINED"
@@ -112,25 +106,7 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_72F67E8A9FCE0E933A9AED3D8F87F099"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_241726D8D37F2211363B55414F2EA95A"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_16D377A0268E9E0FDD97F954E4430285"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_4F1FEFC6696979E21DBE04F64A84426A"
+        "OwnerKey" = "8:_0750778BC70507A3B56B6C7B5D4098D5"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -142,7 +118,25 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_0750778BC70507A3B56B6C7B5D4098D5"
+        "OwnerKey" = "8:_4F1FEFC6696979E21DBE04F64A84426A"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_16D377A0268E9E0FDD97F954E4430285"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_241726D8D37F2211363B55414F2EA95A"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_72F67E8A9FCE0E933A9AED3D8F87F099"
         "MsmSig" = "8:_UNDEFINED"
         }
     }
@@ -303,11 +297,6 @@
             "AssemblyAsmDisplayName" = "8:System.ComponentModel, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"
                 "ScatterAssemblies"
                 {
-                    "_0750778BC70507A3B56B6C7B5D4098D5"
-                    {
-                    "Name" = "8:System.ComponentModel.dll"
-                    "Attributes" = "3:512"
-                    }
                 }
             "SourcePath" = "8:System.ComponentModel.dll"
             "TargetName" = "8:"
@@ -334,11 +323,6 @@
             "AssemblyAsmDisplayName" = "8:System.Net.Http, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"
                 "ScatterAssemblies"
                 {
-                    "_0FC41EFB5C70E4F55FCE36A41FCEE13C"
-                    {
-                    "Name" = "8:System.Net.Http.dll"
-                    "Attributes" = "3:512"
-                    }
                 }
             "SourcePath" = "8:System.Net.Http.dll"
             "TargetName" = "8:"
@@ -365,11 +349,6 @@
             "AssemblyAsmDisplayName" = "8:Google.Protobuf, Version=3.6.1.0, Culture=neutral, PublicKeyToken=a7d26565bac4d604, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_16D377A0268E9E0FDD97F954E4430285"
-                    {
-                    "Name" = "8:Google.Protobuf.dll"
-                    "Attributes" = "3:512"
-                    }
                 }
             "SourcePath" = "8:Google.Protobuf.dll"
             "TargetName" = "8:"
@@ -396,11 +375,6 @@
             "AssemblyAsmDisplayName" = "8:Renci.SshNet, Version=2016.1.0.0, Culture=neutral, PublicKeyToken=1cee9f8bde3db106, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_241726D8D37F2211363B55414F2EA95A"
-                    {
-                    "Name" = "8:Renci.SshNet.dll"
-                    "Attributes" = "3:512"
-                    }
                 }
             "SourcePath" = "8:Renci.SshNet.dll"
             "TargetName" = "8:"
@@ -420,26 +394,6 @@
             "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_3B215FB8360B4387BB69BAF8D29D4DB6"
-            {
-            "SourcePath" = "8:..\\Readme.md"
-            "TargetName" = "8:Readme.md"
-            "Tag" = "8:"
-            "Folder" = "8:_AC6C5FC7022844B3BF22ABAB8E8D7138"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_4F1FEFC6696979E21DBE04F64A84426A"
             {
             "AssemblyRegister" = "3:1"
@@ -447,11 +401,6 @@
             "AssemblyAsmDisplayName" = "8:BouncyCastle.Crypto, Version=1.8.3.0, Culture=neutral, PublicKeyToken=0e99375e54769942"
                 "ScatterAssemblies"
                 {
-                    "_4F1FEFC6696979E21DBE04F64A84426A"
-                    {
-                    "Name" = "8:BouncyCastle.Crypto.dll"
-                    "Attributes" = "3:512"
-                    }
                 }
             "SourcePath" = "8:BouncyCastle.Crypto.dll"
             "TargetName" = "8:"
@@ -478,11 +427,6 @@
             "AssemblyAsmDisplayName" = "8:MySql.Data, Version=8.0.17.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_72F67E8A9FCE0E933A9AED3D8F87F099"
-                    {
-                    "Name" = "8:MySql.Data.dll"
-                    "Attributes" = "3:512"
-                    }
                 }
             "SourcePath" = "8:MySql.Data.dll"
             "TargetName" = "8:"
@@ -1280,7 +1224,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_BBD027DD4E8B4FFEA9E2B51B438E3F69"
             {
-            "SourcePath" = "8:..\\Rosie_Serial_LIS\\obj\\Release\\Rosie_Serial_LIS.xml"
+            "SourcePath" = "8:..\\Rosie_Serial_LIS\\obj\\Release\\RoyHarmon.RosieLIS.dll.xml"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_AC6C5FC7022844B3BF22ABAB8E8D7138"
@@ -1336,7 +1280,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_DFAAAD51C77648F387E5A871860FFAE7"
             {
-            "SourcePath" = "8:..\\Rosie_Serial_LIS\\obj\\Release\\Rosie_Serial_LIS.exe"
+            "SourcePath" = "8:..\\Rosie_Serial_LIS\\obj\\Release\\RoyHarmon.RosieLIS.dll.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_AC6C5FC7022844B3BF22ABAB8E8D7138"

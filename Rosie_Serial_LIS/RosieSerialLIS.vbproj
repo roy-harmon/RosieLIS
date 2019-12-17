@@ -198,7 +198,9 @@
     </None>
     <None Include="App.config" />
     <None Include="packages.config" />
-    <None Include="Readme.md" />
+    <None Include="Readme.md">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="Rosie_Serial_LIS_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
