@@ -49,7 +49,8 @@ While it can be configured for several modes of operation, the typical usage is 
 * The analyzer transmits result data to the computer.
 * Results are stored in the database to be accessed by other software.
 
-It also stores calibration results to the database, but due to some bugs in the Siemens Dimension software, these should not be used for anything too important. As of Dimension version 10.3, the following problems have been observed with calibration results:
+It also stores calibration results to the database, but due to some bugs in the Siemens Dimension software, these should not be used for anything too important. The majority of those bugs are incurred by transmitting the calibration result message before the calibration is accepted by the operator. As of Dimension version 10.3, the following problems have been observed with calibration results:
+* The calibration result message contains no indication of the calibration's acceptance or rejection status; rejected calibrations are indistinguishable from accepted ones.
 * The Cal_DateTime value actually represents the timestamp from the beginning of the reagent lot's previous calibration.
 * Due to the above timestamp discrepancy, the first calibration of each lot will have a Cal_DateTime value of "000019311269" (12/31/xx69 7:00 PM).
 * Since the new coefficients are not yet calculated when the data is transmitted, coefficient values given are from the previous calibration.
