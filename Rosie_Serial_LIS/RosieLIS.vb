@@ -203,14 +203,16 @@ Public Class RosieLISService
                               ' Query message. This likely requires a different database setup to be useful. 
                               ' For now, just send any pending sample requests for the sample in question.
                               Dim varRes = Split(strData, Chr(28), , CompareMethod.Binary)
-                              command.CommandText = "SELECT * FROM PendingTests WHERE PendingSending='TRUE' AND SampleNo = @SampleNo"
+                              ' Only one row can be sent at a time because the instrument needs to respond with: 
+                              ' 1. an acknowledgement, 2. a request acceptance message, and 3. another poll or query message, which puts us back here.
+                              ' Microsoft SQL Server uses "SELECT TOP 1 ..." while everything else uses "SELECT ... LIMIT 1"
+                              If My.Settings.databaseType = "SQL Server" Then
+                                   command.CommandText = "SELECT TOP 1 * FROM PendingTests WHERE PendingSending='TRUE' AND SampleNo = @SampleNo"
+                              Else
+                                   command.CommandText = "SELECT * FROM PendingTests WHERE PendingSending='TRUE' AND SampleNo = @SampleNo LIMIT 1"
+                              End If
                               command.AddWithValue("@SampleNo", varRes(1))
                          End If
-                         ' Note that the command may return more than one row. The only downside is marginally increased network traffic.
-                         ' Since some data sources (Microsoft) use "SELECT TOP 1 ..." and others use "SELECT ... LIMIT 1" 
-                         ' the omission of either statement is the simplest way to ensure compatibility. 
-                         ' However, only one row can be sent at a time because the instrument needs to respond with: 
-                         ' 1. an acknowledgement, 2. a request acceptance message, and 3. another poll or query message, which puts us back here.
                          Using dr As DbDataReader = command.ExecuteReader
                               If dr.Read() Then
                                    ' If there's at least one row, send the first row.
