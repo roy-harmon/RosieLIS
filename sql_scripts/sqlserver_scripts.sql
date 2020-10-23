@@ -129,26 +129,26 @@ GO
 INSERT INTO [ErrorCodes] 
 		([Error_Code],[Suppress_Result],[Error_Interpretation],[Alt_Interpretations],[Explanation]) 
 VALUES
-	('1',FALSE,'Temperature Out Of Range','','The cuvette temperature was out of acceptable range.'),
-	('2',FALSE,'Calibration Expired','','The reagent cartridge lot for this test had an EXPIRED calibration status.'),
-	('3',FALSE,'Assay Out Of Range','Assay Range/Diluted','The result for this test was out of assay range defined for the linear method.'),
-	('4',FALSE,'Absorbance','Assay rng/dilu, Low ''A'' Error, High ''A'' Error','The photometric reading was out of acceptable range. These errors are also reported out as code.'),
-	('5',FALSE,'Measurement System (noise, cuvette, etc.)','','During photometric measurement, the system detected some noise or variances in the absorbance.'),
-	('6',TRUE,'Reagent QC','Abnormal Assay','Assay is out of the established range for the specified method.'),
-	('7',TRUE,'Arithmetic Error','','The result was not able to be calculated using the current coefficients for that method.'),
-	('8',TRUE,'Never Calibrated','','The reagent cartridge lot for this method was never calibrated.'),
-	('9',TRUE,'No Reagent','','The system lacked sufficient reagent for this test or a hydration of a reagent failed.'),
-	('10',TRUE,'Aborted Test','No Aliquots','A system action (by user or system) aborted this test.'),
-	('11',TRUE,'Processing Error','','A system processing error occurred that prevented the system from the determined result.'),
-	('12',TRUE,'Software Error','','Software error exists on the instrument.'),
-	('13',FALSE,'"Hemoglobin"','','The sample contained enough hemoglobin to interfere with system DBIL results. However, this will not affect the TBIL results.'),
-	('14',FALSE,'Abnormal Reaction','','Indicates the abnormal reaction conditions, i. e., foaming, air bubbles or turbidity problems are present in the mixture in the cuvette.'),
-	('15',FALSE,'Diluted','','The test has been autodiluted by the instrument.'),
-	('16',FALSE,'Below Assay Range','','Below current assay range for non-linear methods.'),
-	('17',FALSE,'Above Assay Range','','Above current assay range for non-linear methods.'),
-	('18',FALSE,'HIL Detected','','The amount of lipemia, hemolysis, or icterus in the specimen exceeded the threshold set in the software.'),
-	('19',TRUE,'Clot Detected','','A clot was detected when the probe attempted to aspirate sample for the test.'),
-	('',FALSE,'','','')
+	('1',0,'Temperature Out Of Range','','The cuvette temperature was out of acceptable range.'),
+	('2',0,'Calibration Expired','','The reagent cartridge lot for this test had an EXPIRED calibration status.'),
+	('3',0,'Assay Out Of Range','Assay Range/Diluted','The result for this test was out of assay range defined for the linear method.'),
+	('4',0,'Absorbance','Assay rng/dilu, Low ''A'' Error, High ''A'' Error','The photometric reading was out of acceptable range. These errors are also reported out as code.'),
+	('5',0,'Measurement System (noise, cuvette, etc.)','','During photometric measurement, the system detected some noise or variances in the absorbance.'),
+	('6',-1,'Reagent QC','Abnormal Assay','Assay is out of the established range for the specified method.'),
+	('7',-1,'Arithmetic Error','','The result was not able to be calculated using the current coefficients for that method.'),
+	('8',-1,'Never Calibrated','','The reagent cartridge lot for this method was never calibrated.'),
+	('9',-1,'No Reagent','','The system lacked sufficient reagent for this test or a hydration of a reagent failed.'),
+	('10',-1,'Aborted Test','No Aliquots','A system action (by user or system) aborted this test.'),
+	('11',-1,'Processing Error','','A system processing error occurred that prevented the system from the determined result.'),
+	('12',-1,'Software Error','','Software error exists on the instrument.'),
+	('13',0,'"Hemoglobin"','','The sample contained enough hemoglobin to interfere with system DBIL results. However, this will not affect the TBIL results.'),
+	('14',0,'Abnormal Reaction','','Indicates the abnormal reaction conditions, i. e., foaming, air bubbles or turbidity problems are present in the mixture in the cuvette.'),
+	('15',0,'Diluted','','The test has been autodiluted by the instrument.'),
+	('16',0,'Below Assay Range','','Below current assay range for non-linear methods.'),
+	('17',0,'Above Assay Range','','Above current assay range for non-linear methods.'),
+	('18',0,'HIL Detected','','The amount of lipemia, hemolysis, or icterus in the specimen exceeded the threshold set in the software.'),
+	('19',-1,'Clot Detected','','A clot was detected when the probe attempted to aspirate sample for the test.'),
+	('',0,'','','')
 GO
 
 CREATE TABLE [RejectReasons](
