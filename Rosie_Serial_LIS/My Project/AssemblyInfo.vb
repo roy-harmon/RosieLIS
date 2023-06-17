@@ -10,10 +10,10 @@ Imports System.Runtime.InteropServices
 ' Review the values of the assembly attributes
 
 <Assembly: AssemblyTitle("RosieLIS")>
-<Assembly: AssemblyDescription("Windows service to communicate with Rosie over serial COM port.")>
+<Assembly: AssemblyDescription("Windows service to communicate with Dimension analyzers over serial COM port.")>
 <Assembly: AssemblyCompany("Roy Harmon")>
 <Assembly: AssemblyProduct("Rosie_Serial_LIS")>
-<Assembly: AssemblyCopyright("Copyright ©  2016 - 2021")>
+<Assembly: AssemblyCopyright("Copyright ©  2016 - 2023")>
 <Assembly: AssemblyTrademark("")>
 
 <Assembly: ComVisible(False)>
@@ -32,6 +32,6 @@ Imports System.Runtime.InteropServices
 ' by using the '*' as shown below:
 ' <Assembly: AssemblyVersion("1.0.*")> 
 
-<Assembly: AssemblyVersion("1.1.0.0")>
-<Assembly: AssemblyFileVersion("1.1.0.0")>
+<Assembly: AssemblyVersion("1.1.1.0")>
+<Assembly: AssemblyFileVersion("1.1.1.0")>
 <Assembly: NeutralResourcesLanguage("en-US")>
