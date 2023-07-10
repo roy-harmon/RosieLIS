@@ -4,18 +4,24 @@ Imports System.IO
 Imports System.IO.Ports
 
 Public Class RosieLISService
+     Inherits ServiceProcess.ServiceBase
 
      Public WithEvents ComPort As SerialPort
      Private intTemp As Integer
 
-     Protected Sub OnStart()
+     Protected Overrides Sub OnStart(args As String())
           Try
+               ' Wait a few seconds so we can attach the debugger.
+               'Threading.Thread.Sleep(15000)
+               Console.WriteLine("Service OnStart executing now.")
+               My.Application.Log.WriteEntry("Initiating RosieLIS.OnStart...")
+               AppendToLog("Starting service.")
                ' Set up the serial port so the service can do its work.
                SerialOpen()
           Catch ex As Exception
                ' Write any exceptions to the event log.
                HandleError(ex)
-               Throw
+               Return
           End Try
           Try
                Using cnSQL As DbConnection = GetConnected()
@@ -24,16 +30,18 @@ Public Class RosieLISService
           Catch ex As Exception
                ' If there was a problem with the connection, write it to the log.
                HandleError(ex)
-               Throw
+               Return
           End Try
      End Sub
 
      Sub SerialOpen()
+          AppendToLog($"Attempting to open serial port {My.Settings.portName}...")
           ComPort = My.Computer.Ports.OpenSerialPort(My.Settings.portName, My.Settings.baudRate, My.Settings.parity, My.Settings.dataBits, My.Settings.stopBits)
           With ComPort
                .Handshake = My.Settings.handShake
                .NewLine = Chr(3)
           End With
+          AppendToLog($"Port {ComPort.PortName} opened.")
      End Sub
 
      Shared Function GetConnected() As IDbConnection
@@ -54,7 +62,7 @@ Public Class RosieLISService
           cnSQL.Open()
           Return cnSQL
      End Function
-     Protected Sub OnStop()
+     Protected Overrides Sub OnStop()
           ' Definitely want to close the COM port when we're done.
           Try
                If ComPort IsNot Nothing Then
@@ -69,7 +77,12 @@ Public Class RosieLISService
      End Sub
 
      Shared Sub HandleError(ex As Exception)
-          If ex Is Nothing Then Exit Sub
+          If ex Is Nothing Then
+               My.Application.Log.WriteEntry("Unknown exception in RosieLIS.")
+               AppendToLog("Unknown error encountered.")
+               Return
+          End If
+          My.Application.Log.WriteException(ex, TraceEventType.Error, "Exception in RosieLIS.")
           Dim message As String = ex.Source & " - Error: " & ex.Message & " at RosieLIS Line " & ex.LineNumber()
           message &= vbCrLf & "Exception: " & ex.ToString()
           AppendToLog(message)
@@ -97,15 +110,11 @@ Public Class RosieLISService
      End Sub
 
      Sub ReceiveSerialData()
-          ' Receive strings from a serial port.
-          ' Properties should already be set.
-          Dim strTrans As String = ""
-
-          If ComPort.BytesToRead = 0 Then Exit Sub
+          If ComPort.BytesToRead = 0 Then Return
 
           Dim Incoming As String = ""
           Dim intCom As Integer
-
+          Dim builder As New Text.StringBuilder
           Do
                If ComPort.BytesToRead > 0 Then
                     intCom = ComPort.ReadByte()
@@ -114,16 +123,14 @@ Public Class RosieLISService
                          'Else
                          '     Incoming = Chr(3)
                     End If
-                    If Incoming = Chr(3) Then
-                         Exit Do
-                    Else
-                         If Not Incoming = Chr(6) Then strTrans &= Incoming
-                    End If
+                    If Incoming <> Chr(6) Then builder.Append(Incoming)
                Else
                     Threading.Thread.Sleep(200)
                End If
-          Loop
-
+          Loop Until Incoming = Chr(3)
+          ' Receive strings from a serial port.
+          ' Properties should already be set.
+          Dim strTrans As String = builder.ToString()
           If strTrans.Substring(0, 1) = Chr(2) Then strTrans = strTrans.Substring(1)
 
           If Len(strTrans) > 2 Then
@@ -200,9 +207,8 @@ Public Class RosieLISService
                               ' Poll message. If there are any pending sample requests that haven't been sent, send one now.
                               command.CommandText = "SELECT * FROM PendingTests WHERE PendingSending='TRUE'"
                          ElseIf strType = "I" Then
-                              ' Query message. This likely requires a different database setup to be useful. 
-                              ' For now, just send any pending sample requests for the sample in question.
-                              Dim varRes = Split(strData, Chr(28), , CompareMethod.Binary)
+                              ' Query message. Officially unsupported by Siemens.
+                              ' Send any pending sample requests for the sample in question.
                               ' Only one row can be sent at a time because the instrument needs to respond with: 
                               ' 1. an acknowledgement, 2. a request acceptance message, and 3. another poll or query message, which puts us back here.
                               ' Microsoft SQL Server uses "SELECT TOP 1 ..." while everything else uses "SELECT ... LIMIT 1"
@@ -211,12 +217,13 @@ Public Class RosieLISService
                               Else
                                    command.CommandText = "SELECT * FROM PendingTests WHERE PendingSending='TRUE' AND SampleNo = @SampleNo LIMIT 1"
                               End If
+                              Dim varRes = Split(strData, Chr(28), , CompareMethod.Binary)
                               command.AddWithValue("@SampleNo", varRes(1))
                          End If
                          Using dr As DbDataReader = command.ExecuteReader
                               If dr.Read() Then
                                    ' If there's at least one row, send the first row.
-                                   Dim strTests() As String = Nothing
+                                   Dim strTests As String() = Nothing
                                    Dim intTests As Integer, strSampleType As String, intDil As Integer = 1
                                    strSampleType = dr.Item("SampleType")
                                    intTests = My.Settings.maxTests
@@ -246,13 +253,10 @@ Public Class RosieLISService
                          End Using
                     End Using
                End Using
-#Disable Warning CA1031 ' Do not catch general exception types
-#Disable Warning CA1031 ' Do not catch general exception types
+
           Catch ex As Exception
-#Enable Warning CA1031 ' Do not catch general exception types
                HandleError(ex)
                Return ex.LineNumber()
-#Enable Warning CA1031 ' Do not catch general exception types
           End Try
      End Function
 
@@ -260,9 +264,9 @@ Public Class RosieLISService
           ' Call a procedure to process the incoming data according to the message type 
           ' based on the first letter of the message.
           Try
-               If strData Is Nothing Or Len(strData) = 0 Then
+               If strData Is Nothing OrElse Len(strData) = 0 Then
                     Throw New ArgumentNullException(NameOf(strData))
-                    Exit Sub
+                    Return
                End If
                Select Case strData.Substring(0, 1)
                     Case "P", "I"
@@ -300,13 +304,9 @@ Public Class RosieLISService
                ' Log it.
                AppendToLog("I:  " & strData)
 
-#Disable Warning CA1031 ' Do not catch general exception types
-#Disable Warning CA1031 ' Do not catch general exception types
           Catch ex As Exception
-#Enable Warning CA1031 ' Do not catch general exception types
                HandleError(ex)
                ComPort.Write(Chr(21))
-#Enable Warning CA1031 ' Do not catch general exception types
           End Try
 
      End Sub
@@ -339,14 +339,10 @@ Public Class RosieLISService
                End Using
                AppendToLog("In: " & strData)
                Return 0
-#Disable Warning CA1031 ' Do not catch general exception types
-#Disable Warning CA1031 ' Do not catch general exception types
           Catch ex As Exception
-#Enable Warning CA1031 ' Do not catch general exception types
                HandleError(ex)
                SendCommData(ResultAcceptance(False))
                Return ex.LineNumber()
-#Enable Warning CA1031 ' Do not catch general exception types
           End Try
      End Function
 
@@ -423,9 +419,8 @@ Public Class RosieLISService
                                    If IsNumeric(varRes(intCount)) Then dblLevel = varRes(intCount)
                                    intResults = Nz(varRes(intCount + 1), 0)
                                    intResCount = 0
-                                   Do Until intResCount = intResults
+                                   Do Until intResCount = intResults OrElse intCount + intResCount + 2 >= UBound(varRes, 1)
                                         intResCount += 1
-                                        If Not intCount + intResCount + 1 < UBound(varRes, 1) Then Exit Do
                                         If IsNumeric(varRes(intCount)) Then
                                              .Parameters.Item(intField).Value = dblLevel
                                         Else
@@ -448,61 +443,62 @@ Public Class RosieLISService
                               ' Try it out!
                               Try
                                    .Prepare()
-                                   Dim unused = .ExecuteNonQuery()
-                                   SendCommData(ResultAcceptance)
+                                   Dim returnVal = .ExecuteNonQuery()
+                                   ' Should store exactly 1 row in the database.
+                                   If returnVal.Equals(1) Then
+                                        SendCommData(ResultAcceptance(True))
+                                   Else
+                                        SendCommData(ResultAcceptance(False))
+                                        AppendToLog("Unknown error encountered when storing calibration in database.")
+                                        Throw New FormatException
+                                   End If
                               Catch ex As FormatException
                                    ' If some value wasn't able to be cast as its expected data type, log enough information to figure out why.
                                    HandleError(ex)
-                                   Dim sParams As String = ""
+                                   Dim sParams As New Text.StringBuilder
                                    For i As Integer = 0 To .Parameters.Count - 1
-                                        sParams &= .Parameters(i).ParameterName & "," & .Parameters(i).DbType & ":" & .Parameters(i).Value & ";"
+                                        sParams.Append($"{ .Parameters(i).ParameterName}, { .Parameters(i).DbType}:{ .Parameters(i).Value};")
                                    Next
-                                   AppendToLog("Parameters: " & sParams)
-                                   SendCommData(Chr(2) & "M" & Chr(28) & "R" & Chr(28) & "1" & Chr(28) & "24" & Chr(3)) ' Result Reject Message.
-#Disable Warning CA1031 ' Do not catch general exception types
-#Disable Warning CA1031 ' Do not catch general exception types
+                                   AppendToLog("Calibration Parameters: " & sParams.ToString())
+                                   SendCommData(ResultAcceptance(False)) ' Result Reject Message.
                               Catch ex As Exception
-#Enable Warning CA1031 ' Do not catch general exception types
                                    ' If it doesn't work, record the error and reject the result.
                                    ' We'll have 12 minutes to deal with it before a DMW/Host Communication Error is thrown.
                                    HandleError(ex)
-                                   SendCommData(Chr(2) & "M" & Chr(28) & "R" & Chr(28) & "1" & Chr(28) & "24" & Chr(3)) ' Result Reject Message.
-#Enable Warning CA1031 ' Do not catch general exception types
+                                   SendCommData(ResultAcceptance(False)) ' Result Reject Message.
                               End Try
                          End With
                     End Using
                End Using
                Return 0
-#Disable Warning CA1031 ' Do not catch general exception types
-#Disable Warning CA1031 ' Do not catch general exception types
           Catch ex As Exception
-#Enable Warning CA1031 ' Do not catch general exception types
                HandleError(ex)
                SendCommData(ResultAcceptance(False))
                Return ex.LineNumber()
-#Enable Warning CA1031 ' Do not catch general exception types
           End Try
      End Function
      Function ResultMessage(ByVal strData As String)
           ' Receive a Result message. Then send a ResultAcceptance message, either accepting or rejecting it. Most likely accepting.
           Dim varRes = Split(strData, Chr(28), , vbBinaryCompare)
-          Dim strSQL1 As String = "INSERT INTO SampleData ( "
-          Dim strSQL2 As String = " ) VALUES ( "
+          Dim sbSQL1 As New Text.StringBuilder("INSERT INTO SampleData ( ")
+          Dim strSQL1 As String
+          Dim sbSQL2 As New Text.StringBuilder(" ) VALUES ( ")
+          Dim strSQL2 As String
           Dim objID As Object, intRes As Integer, intID As Integer
           Try
 
                Using cnSQL As IDbConnection = GetConnected()
                     Using insert As DbCommand = cnSQL.CreateCommand()
-                         Dim fieldArray() As String = {"Patient_ID", "Sample_No", "SampleType", "Location", "Priority", "DateTime", "Cups", "Dilution", "TestsCount"}
+                         Dim fieldArray As String() = {"Patient_ID", "Sample_No", "SampleType", "Location", "Priority", "DateTime", "Cups", "Dilution", "TestsCount"}
                          For i = 0 To UBound(fieldArray)
                               If Len(varRes(i + 2)) > 0 Then
                                    insert.AddWithValue("@" & fieldArray(i), varRes(i + 2), DbType.String)
-                                   strSQL1 &= fieldArray(i) & ", "
-                                   strSQL2 &= "@" & fieldArray(i) & ", "
+                                   sbSQL1.Append(fieldArray(i) & ", ")
+                                   sbSQL2.Append("@" & fieldArray(i) & ", ")
                               End If
                          Next
-                         strSQL1 = Mid(strSQL1, 1, Len(strSQL1) - 2)
-                         strSQL2 = Mid(strSQL2, 1, Len(strSQL2) - 2)
+                         strSQL1 = sbSQL1.ToString().TrimEnd(","c, " "c)
+                         strSQL2 = sbSQL2.ToString().TrimEnd(","c, " "c)
                          For Each param As DbParameter In insert.Parameters
                               If Len(param.Value) > 0 Then param.Size = Len(param.Value)
                          Next
@@ -518,38 +514,40 @@ Public Class RosieLISService
                          objID = getNew.ExecuteScalar()
                          intID = CInt(objID)
                     End Using
-                    Dim str1 As String = "INSERT INTO SampleResults ( Sample_ID, TestName"
-                    Dim str2 As String = " ) VALUES ( @Sample_ID, @TestName"
+                    Dim str1 As New Text.StringBuilder("INSERT INTO SampleResults ( Sample_ID, TestName")
+                    Dim str2 As New Text.StringBuilder(" ) VALUES ( @Sample_ID, @TestName")
                     Dim intCount As Integer
 
                     Do Until intCount = CInt(varRes(10))
                          Using insert As DbCommand = cnSQL.CreateCommand()
-                              str1 = "INSERT INTO SampleResults ( Sample_ID, TestName"
-                              str2 = " ) VALUES ( @Sample_ID, @TestName"
+                              str1.Append("INSERT INTO SampleResults ( Sample_ID, TestName")
+                              str2.Append(" ) VALUES ( @Sample_ID, @TestName")
                               insert.AddWithValue("@Sample_ID", intID, DbType.Int32)
                               insert.AddWithValue("@TestName", varRes(11 + intCount * 4), DbType.String)
                               If Len(varRes(12 + intCount * 4)) > 0 Then
-                                   str1 &= ", ResultValue"
-                                   str2 &= ", @ResultValue"
+                                   str1.Append(", ResultValue")
+                                   str2.Append(", @ResultValue")
                                    insert.AddParam("@ResultValue", DbType.String)
                                    insert.Parameters.Item("@ResultValue").Value = varRes(12 + intCount * 4)
                               End If
                               If Len(varRes(13 + intCount * 4)) > 0 Then
-                                   str1 &= ", Units"
-                                   str2 &= ", @Units"
+                                   str1.Append(", Units")
+                                   str2.Append(", @Units")
                                    insert.AddParam("@Units", DbType.String)
                                    insert.Parameters.Item("@Units").Value = varRes(13 + intCount * 4)
                               End If
                               If Len(varRes(14 + intCount * 4)) > 0 Then
-                                   str1 &= ", Error "
-                                   str2 &= ", @Error "
+                                   str1.Append(", Error ")
+                                   str2.Append(", @Error ")
                                    insert.AddParam("@Error", DbType.String)
                                    insert.Parameters.Item("@Error").Value = varRes(14 + intCount * 4)
                               End If
                               For Each param As DbParameter In insert.Parameters
                                    If Len(param.Value) > 0 Then param.Size = Len(param.Value)
                               Next
-                              insert.CommandText = str1 & str2 & " )"
+#Disable Warning CA2100 ' Review SQL queries for security vulnerabilities
+                              insert.CommandText = str1.Append(str2).Append(" )").ToString()
+#Enable Warning CA2100 ' Review SQL queries for security vulnerabilities
                               insert.Prepare()
                               intRes = insert.ExecuteNonQuery()
                               intCount += 1
@@ -560,19 +558,17 @@ Public Class RosieLISService
 
                SendCommData(ResultAcceptance)
                Return 0
-#Disable Warning CA1031 ' Do not catch general exception types
           Catch ex As Exception
                HandleError(ex)
                SendCommData(ResultAcceptance(False))
                Return ex.LineNumber()
-#Enable Warning CA1031 ' Do not catch general exception types
           End Try
      End Function
 
      Shared Sub AppendToLog(strText As String)
-          Static ci As System.Globalization.CultureInfo = System.Globalization.CultureInfo.GetCultureInfo("en-US")
+          Static ci As Globalization.CultureInfo = Globalization.CultureInfo.GetCultureInfo("en-US")
           Dim strName As String = Environ("AllUsersProfile") & "\Rosie_Serial_LIS\Serial_Logs\SerialLog_" & Today.ToString("yyyy-MM-dd", ci.DateTimeFormat) & ".txt"
-          If Directory.Exists(Environ("AllUsersProfile") & "\Rosie_Serial_LIS\Serial_Logs\") = False Then
+          If Not Directory.Exists(Environ("AllUsersProfile") & "\Rosie_Serial_LIS\Serial_Logs\") Then
                Directory.CreateDirectory(Environ("AllUsersProfile") & "\Rosie_Serial_LIS\Serial_Logs\")
           End If
           strText = Now() & " " & strText & vbCrLf
@@ -589,31 +585,31 @@ Public Class RosieLISService
 
      Shared Function SampleRequestMessage(boolDelete As Boolean, strPatientID As String, strSampleNo As String, strSampleType As String, intPriority As Integer, ByRef strTests() As String, Optional iDilFactor As Integer = 1) As String
           ' This function returns a string to tell the instrument what tests to run on a sample.
-          Dim strOut As String
+          Dim strOut As New Text.StringBuilder
           Dim intTests As Integer, intCount As Integer
-          If strTests Is Nothing Or UBound(strTests) = 0 Then
+          If strTests Is Nothing OrElse UBound(strTests) = 0 Then
                Throw New ArgumentNullException(NameOf(strTests))
           End If
           ' Count how many tests we need to add.
           intTests = UBound(strTests, 1) + 1
           intCount = 0
-          strOut = Chr(2) & "D" & Chr(28) & "0" & Chr(28) & "0" & Chr(28)
+          strOut.Append(Chr(2) & "D" & Chr(28) & "0" & Chr(28) & "0" & Chr(28))
           If boolDelete Then
-               strOut &= "D"
+               strOut.Append("D"c)
           Else
-               strOut &= "A"
+               strOut.Append("A"c)
           End If
-          strOut &= Chr(28) & strPatientID & Chr(28) & strSampleNo & Chr(28) ' Message type, carrier ID, loadlist ID, Add/Delete, Patient ID, Sample ID.
-          strOut &= strSampleType & Chr(28) & "" & Chr(28) & intPriority & Chr(28) & "1" & Chr(28) ' Sample type, location, priority, and # of cups for the sample.
-          strOut &= "**" & Chr(28) & iDilFactor & Chr(28) ' Sample position (always "**" since positions have to be assigned on the instrument) and dilution factor.
-          strOut &= intTests & Chr(28) ' The number of tests requested.
+          strOut.Append(Chr(28) & strPatientID & Chr(28) & strSampleNo & Chr(28)) ' Message type, carrier ID, loadlist ID, Add/Delete, Patient ID, Sample ID.
+          strOut.Append(strSampleType & Chr(28) & "" & Chr(28) & intPriority & Chr(28) & "1" & Chr(28)) ' Sample type, location, priority, and # of cups for the sample.
+          strOut.Append("**" & Chr(28) & iDilFactor & Chr(28)) ' Sample position (always "**" since positions have to be assigned on the instrument) and dilution factor.
+          strOut.Append(intTests & Chr(28)) ' The number of tests requested.
           Do
-               strOut &= StrConv(strTests(intCount), vbUpperCase) & Chr(28)
+               strOut.Append(StrConv(strTests(intCount), vbUpperCase) & Chr(28))
                intCount += 1
           Loop Until intCount = intTests
 
-          strOut &= CHKSum(strOut) & Chr(3)
-          SampleRequestMessage = strOut
+          strOut.Append(CHKSum(strOut) & Chr(3))
+          Return strOut.ToString()
 
      End Function
 
@@ -625,4 +621,17 @@ Public Class RosieLISService
           End If
      End Function
 
+     Public Sub DebuggingRoutine(args As String())
+          OnStart(args)
+          Console.ReadLine()
+          OnStop()
+     End Sub
+
+     Private Sub InitializeComponent()
+          '
+          'RosieLISService
+          '
+          Me.ServiceName = "RosieLIS"
+
+     End Sub
 End Class
