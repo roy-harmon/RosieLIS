@@ -623,8 +623,6 @@ Public Class RosieLISService
 
      Public Sub DebuggingRoutine(args As String())
           OnStart(args)
-          Console.ReadLine()
-          OnStop()
      End Sub
 
      Private Sub InitializeComponent()
